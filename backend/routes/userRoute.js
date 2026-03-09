@@ -1,6 +1,6 @@
 import express from "express";
 import { register,reVerify,verify } from "../controllers/userController.js";
-import { isAuthenticated } from "../middleware/usAuthenticated.js";
+import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
 
 const router = express.Router();
@@ -11,9 +11,7 @@ router.post("/re-verify", reVerify)
 router.post("/login", login)
 router.post("/logout",isAuthenticated, logout)
 router.post("/forgot-password", forgotPassword)
-router.post("/verify-otp", verifyOTP)
-router.post("/change-password", changePassword)
-
-
+router.get("/verify-otp", verifyOTP)
+router.get("/all-user/:userId", getUserById)
 
 export default router;

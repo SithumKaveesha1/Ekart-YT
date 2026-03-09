@@ -375,15 +375,16 @@ export const changePassword = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "User not found"
+        message: "All fields are required"
       })
     }
-    if (!newPassword || !confirmPassword) {
+    if (new Password !== confirmPassword) {
       return res.status(400).json({
         success: false,
-        message: "password do not match"
+        message: "Passwords do not match"
       })
     }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10)
     user.password = hashedPassword;
     await user.save();
@@ -402,3 +403,41 @@ export const changePassword = async (req, res) => {
     }
     
 }
+
+export const allUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json({
+      success: true,
+      users
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false, 
+      message: error.message
+    })
+  } 
+}  
+
+export const getIserById = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).select("-password -token -otp -otpExpiry");
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found"
+      })
+    } 
+    return res.status(200).json({
+      success: true,
+      user
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  } 
+}
+
