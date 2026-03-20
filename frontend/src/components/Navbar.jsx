@@ -3,7 +3,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const Navbar = () => {
-    const user = true
+    const user = false
 
     return (
         <header className='bg-pink-50 fixed w-full z-20 border-b border-pink-200'>
@@ -26,6 +26,13 @@ const Navbar = () => {
                         <ShoppingCart />
                         <span className='bg-pink-500 rounded-full absolute text-white -top-3 -right-5 px-2'>0</span>
                     </Link>
+                    {
+                        user ? (
+                            <Button className='bg-pink-600 text-white cursor-pointer'>Logout</Button>
+                        ) : (
+                            <Button className='bg-gradient-to-tl from-blue-600 to-purple-600 text-white cursor-pointer'>Login</Button>
+                        )
+                    }
                 </nav>
             </div>
         </header>
