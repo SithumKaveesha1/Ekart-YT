@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
@@ -11,7 +12,10 @@ import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Profile from "./pages/Profile";
-import Chatbot from "./pages/Chatbot";
+import Contact from "./pages/Contact";
+import { useDispatch } from "react-redux";
+import { setUser } from "./redux/userSlice";
+import { getProfile } from "./lib/api";
 import Shipping from "./pages/Shipping";
 import Payment from "./pages/Payment";
 import OrderReview from "./pages/OrderReview";
@@ -56,8 +60,8 @@ export const routes = [
         element: <Profile />,
       },
       {
-        path: "/chatbot",
-        element: <Chatbot />,
+        path: "/contact",
+        element: <Contact />,
       },
       {
         path: "/checkout/shipping",
@@ -96,6 +100,34 @@ export const routes = [
 ];
 
 const App = ({ router }) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+          const decoded = JSON.parse(jsonPayload);
+          const userId = decoded.id || decoded.userId;
+          if (userId) {
+            const data = await getProfile(userId);
+            if (data.success) {
+              dispatch(setUser(data.user));
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+    };
+    fetchUser();
+  }, [dispatch]);
+
   return <RouterProvider router={router} />;
 };
 

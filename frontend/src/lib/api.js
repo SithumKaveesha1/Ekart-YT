@@ -29,3 +29,15 @@ export const loginUser = async (credentials) => {
     }
     return data;
 };
+
+export const getProfile = async (userId) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await fetch(`${BASE_URL}/all-user/${userId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        },
+    });
+    const data = await response.json();
+    return data;
+};

@@ -45,9 +45,13 @@ const Navbar = () => {
                     <ul className='flex items-center gap-6 font-medium text-gray-700'>
                         <Link to={'/'} className="hover:text-pink-600 transition-colors"><li>Home</li></Link>
                         <Link to={'/products'} className="hover:text-pink-600 transition-colors"><li>Products</li></Link>
-                        <Link to={'/chatbot'} className="hover:text-pink-600 transition-colors"><li>Chatbot</li></Link>
+                        <Link to={'/contact'} className="hover:text-pink-600 transition-colors"><li>Contact Us</li></Link>
                         {
-                            user && <Link to={'/profile'} className="hover:text-pink-600 transition-colors"><li>Hello, {user.firstname}</li></Link>
+                            user ? (
+                                <Link to={'/profile'} className="hover:text-pink-600 transition-colors"><li>Hello, {user.firstname}</li></Link>
+                            ) : (
+                                <Link to={'/login'} className="hover:text-pink-600 transition-colors"><li>Hello, Guest</li></Link>
+                            )
                         }
                     </ul>
                     
