@@ -1,4 +1,6 @@
 import React from 'react'
+import Hero from '../components/ui/Hero'
+import Features from '../components/ui/Features'
 
 const Home = () => {
 return (

@@ -5,6 +5,9 @@ import {
   createStaticRouter,
 } from "react-router-dom/server";
 import App, { routes } from "./App";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import { Toaster } from "sonner";
 
 export async function render(url) {
   const { query } = createStaticHandler(routes);
@@ -19,7 +22,10 @@ export async function render(url) {
 
   const html = renderToString(
     <StrictMode>
-      <App router={router} />
+      <Provider store={store}>
+        <App router={router} />
+        <Toaster />
+      </Provider>
     </StrictMode>
   );
 
