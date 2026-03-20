@@ -1,30 +1,50 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Verify from "./pages/Verify";
+import VerifyEmail from "./pages/VerifyEmail";
 import Navbar from "./components/Navbar";
 
-const router = createBrowserRouter([
+export const routes = [
   {
     path: "/",
     element: (
       <>
-        <Navbar />
+        
         <Home />
       </>
     ),
   },
   {
     path: "/signup",
-    element: <Signup />,
+    element: (
+      <>
+       
+        <Signup />
+      </>
+    ),
   },
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <>
+        
+        <Login />
+      </>
+    ),
   },
-]);
+  {
+    path: "/verify",
+    element: <Verify />,
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmail />,
+  },
+];
 
-const App = () => {
+const App = ({ router }) => {
   return <RouterProvider router={router} />;
 };
 

@@ -1,4 +1,4 @@
-import nodeMailer from "nodemailer";
+import nodemailer from "nodemailer";
 import 'dotenv/config';
 
 export const sendOTPMail = (otp, email) => {
@@ -9,26 +9,23 @@ export const sendOTPMail = (otp, email) => {
             pass: process.env.MAIL_PASS
         }
     });
-}
 
+    const mailConfigurations = {
+        from: process.env.MAIL_USER,
+        to: email,
+        subject: 'Password Reset OTP',
+        html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>`
+    };
 
-
-const mailConfigurations = {
-    // It should be a string of sender/server email
-    from: process.env.MAIL_USER,
-    to: email,
-
-    // Subject of Email
-    subject: 'Password Reset OTP',
-
-    // This would be the text of email body
-    html: `<p>Your OTP for password reset is: <strong>${otp}</strong></p>`
-};
     transporter.sendMail(mailConfigurations, function (error, info) {
-        if (error) throw Error(error);
-        console.log('OTP Sent Successfully');
-        console.log(info);
+        if (error) {
+            console.error('Error sending OTP mail:', error);
+        } else {
+            console.log('OTP Sent Successfully');
+            console.log(info);
+        }
     });
+};
 
 
 

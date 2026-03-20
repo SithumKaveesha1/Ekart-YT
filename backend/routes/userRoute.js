@@ -1,5 +1,14 @@
 import express from "express";
-import { register,reVerify,verify } from "../controllers/userController.js";
+import { 
+    register, 
+    reVerify, 
+    verify, 
+    login, 
+    logout, 
+    forgotPassword, 
+    verifyOTP, 
+    getIserById as getUserById 
+} from "../controllers/userController.js";
 import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
 

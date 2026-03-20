@@ -218,7 +218,7 @@ export const login = async (req, res) => {
       })
     }
 
-    if (!existingUser.isVerified === false) {
+    if (!existingUser.isVerified) {
       return res.status(400).json({
         success: false,
         message: "Please verify your email before logging in"
@@ -378,7 +378,7 @@ export const changePassword = async (req, res) => {
         message: "All fields are required"
       })
     }
-    if (new Password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       return res.status(400).json({
         success: false,
         message: "Passwords do not match"
@@ -421,7 +421,7 @@ export const allUsers = async (req, res) => {
 
 export const getIserById = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     const user = await User.findById(userId).select("-password -token -otp -otpExpiry");
     if (!user) {
       return res.status(404).json({ 
