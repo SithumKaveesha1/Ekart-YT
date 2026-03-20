@@ -11,6 +11,7 @@ import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Profile from "./pages/Profile";
+import Chatbot from "./pages/Chatbot";
 
 const Layout = () => (
   <div className="flex flex-col min-h-screen">
@@ -49,6 +50,10 @@ export const routes = [
       {
         path: "/profile",
         element: <Profile />,
+      },
+      {
+        path: "/chatbot",
+        element: <Chatbot />,
       },
     ],
   },
