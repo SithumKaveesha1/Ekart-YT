@@ -26,7 +26,7 @@ const Login = () => {
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.id]: e.target.value });
     };
-
+    const  dispatch = useDispatch();
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -38,6 +38,8 @@ const Login = () => {
                 localStorage.setItem("accessToken", data.accessToken);
                 localStorage.setItem("refreshToken", data.refreshToken);
                 navigate("/");
+                dispatch(setUser(data.user))
+                toast.success(data.message)
             }
         } catch (err) {
             setError(err.message || "Invalid credentials. Please try again.");
