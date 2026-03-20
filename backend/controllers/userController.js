@@ -218,12 +218,12 @@ export const login = async (req, res) => {
       })
     }
 
-    if (!existingUser.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: "Please verify your email before logging in"
-      })
-    }
+    // if (!existingUser.isVerified) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Please verify your email before logging in"
+    //   })
+    // }
     const accessToken = jwt.sign(
       { id: existingUser._id },
       process.env.SECRET_KEY,

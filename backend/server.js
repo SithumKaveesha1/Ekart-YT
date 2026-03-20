@@ -2,19 +2,21 @@ import express from "express";
 import'dotenv/config'
 import connectDB from "./database/db.js";
 import userRoute from "./routes/userRoute.js";
+import productRoute from "./routes/productRoute.js";
 import cors from "cors";
 
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT = 8005; 
 
 // Middleware
 app.use(express.json());
 app.use(cors());
 
 app.use('/api/users', userRoute)
-//http://localhost:8000/api/v1/user/register
+app.use('/api/products', productRoute)
+//http://localhost:8000/api/users/register
 
 connectDB()
   .then(() => {

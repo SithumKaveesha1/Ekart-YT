@@ -10,12 +10,12 @@ const Footer = () => {
                 
                 {/* Info Section */}
                 <div className='mb-6 md:mb-0'>
-                    <Link to='/'>
-                        <img src='/Ekart.png' alt="" className='w-32'/>
+                    <Link to='/' className='inline-block mb-3'>
+                        <span className='text-3xl font-bold text-red-600 tracking-wide'>Ekart</span>
                     </Link>
                     <p className='mt-2 text-sm'>Powering Your World with the Best in Electronics.</p>
                     <p className='mt-2 text-sm'>123 Electronics St, Style City, NY 10001</p>
-                    <p className='text-sm'>Email: support@Zaptro.com</p>
+                    <p className='text-sm'>Email: support@Ekart.com</p>
                     <p className='text-sm'>Phone: (123) 456-7890</p>
                 </div>
 
@@ -50,7 +50,7 @@ const Footer = () => {
                         <input 
                             type="email" 
                             placeholder='Your email address' 
-                            className='w-full p-2 rounded-l-md bg-white text-gray-4 00 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-gray-800'
+                            className='w-full p-2 rounded-l-md bg-white text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 bg-gray-800'
                         />
                         <button type='submit' className='bg-pink-600 text-white px-4 rounded-r-md hover:bg-red-700 transition-colors'>
                             Subscribe
@@ -62,7 +62,7 @@ const Footer = () => {
 
             {/* Bottom Section */}
             <div className='mt-8 border-t border-gray-700 pt-6 text-center text-sm'>
-                <p>&copy; {new Date().getFullYear()} <span className='text-pink-600'>EKart</span>. All rights reserved.</p>
+                <p>&copy; {new Date().getFullYear()} <span className='text-red-600'>Ekart</span>. All rights reserved.</p>
             </div>
         </footer>
     )

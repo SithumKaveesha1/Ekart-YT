@@ -14,16 +14,15 @@ const Hero = () => {
                             <Button variant='outline' className='border-white text-white hover:bg-white hover:text-blue-600 bg-transparent'>View Deals</Button>
                         </div>
                     </div>
+                    
+                    <div className='relative flex justify-center'>
+                        <img
+                            src="/ekart-hero1.png"
+                            alt="Latest Electronics"
+                            className='max-w-full h-auto rounded-lg shadow-2xl object-cover'
+                        />
+                    </div>
                 </div>
-            </div>
-            <div className='relative'>
-                <img
-                    src="/ekart-hero1.png"
-                    alt=""
-                    width={500}
-                    height={400}
-                    className='rounded-lg shadow-2xl'
-                />
             </div>
         </section>
     )
