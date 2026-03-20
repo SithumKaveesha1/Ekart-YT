@@ -8,7 +8,7 @@ import cors from "cors";
 
 const app = express();
 
-const PORT = 8005; 
+const PORT = 8000; 
 
 // Middleware
 app.use(express.json());

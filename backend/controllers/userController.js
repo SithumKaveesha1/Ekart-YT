@@ -441,3 +441,40 @@ export const getIserById = async (req, res) => {
   } 
 }
 
+export const updateProfile = async (req, res) => {
+    try {
+        const userId = req.id;
+        const { firstname, lastname, phoneNo, address, city, zipCode, profilePic } = req.body;
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+        if (firstname) user.firstname = firstname;
+        if (lastname) user.lastname = lastname;
+        if (phoneNo) user.phoneNo = phoneNo;
+        if (address) user.address = address;
+        if (city) user.city = city;
+        if (zipCode) user.zipCode = zipCode;
+        if (profilePic) user.profilePic = profilePic;
+
+        await user.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message
+        });
+    }
+};

@@ -9,20 +9,20 @@ import { useSelector } from 'react-redux'
 const Navbar = () => {
     const { user } = useSelector(state => state.user);
     const { items: cartItems } = useSelector(state => state.cart);
-    const accestoken = typeof window !== 'undefined' ? localStorage.getItem("accestoken") : null;
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
     const navigate = useNavigate();
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.post(`http://localhost:8000/api/v1/user/logout`, {}, {
+            const res = await axios.post(`http://localhost:8000/api/users/logout`, {}, {
                 headers: {
-                    Authorization: `Bearer ${accestoken}`
+                    Authorization: `Bearer ${accessToken}`
                 }
             })
             
             if (res.data.success) {
                 toast.success(res.data.message);
-                localStorage.removeItem("accestoken");
+                localStorage.removeItem("accessToken");
                 navigate("/login");
             }
         } catch (error) {
@@ -46,7 +46,7 @@ const Navbar = () => {
                         <Link to={'/'} className="hover:text-pink-600 transition-colors"><li>Home</li></Link>
                         <Link to={'/products'} className="hover:text-pink-600 transition-colors"><li>Products</li></Link>
                         {
-                            user && <Link to={'/profile'} className="hover:text-pink-600 transition-colors"><li>Hello {user.firstname}</li></Link>
+                            user && <Link to={'/profile'} className="hover:text-pink-600 transition-colors"><li>Hello, {user.firstname}</li></Link>
                         }
                     </ul>
                     

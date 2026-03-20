@@ -10,6 +10,7 @@ import { Outlet } from "react-router-dom";
 import Products from "./pages/Products";
 import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
+import Profile from "./pages/Profile";
 
 const Layout = () => (
   <div className="flex flex-col min-h-screen">
@@ -44,6 +45,10 @@ export const routes = [
       {
         path: "/product/:id",
         element: <ProductDetail />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
     ],
   },

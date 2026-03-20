@@ -7,7 +7,8 @@ import {
     logout, 
     forgotPassword, 
     verifyOTP, 
-    getIserById as getUserById 
+    getIserById as getUserById,
+    updateProfile
 } from "../controllers/userController.js";
 import { isAuthenticated } from "../middleware/isAuthenticated.js";
 
@@ -22,5 +23,6 @@ router.post("/logout",isAuthenticated, logout)
 router.post("/forgot-password", forgotPassword)
 router.get("/verify-otp", verifyOTP)
 router.get("/all-user/:userId", getUserById)
+router.put("/update-profile", isAuthenticated, updateProfile)
 
 export default router;
