@@ -12,6 +12,10 @@ import Cart from "./pages/Cart";
 import ProductDetail from "./pages/ProductDetail";
 import Profile from "./pages/Profile";
 import Chatbot from "./pages/Chatbot";
+import Shipping from "./pages/Shipping";
+import Payment from "./pages/Payment";
+import OrderReview from "./pages/OrderReview";
+import OrderSuccess from "./pages/OrderSuccess";
 
 const Layout = () => (
   <div className="flex flex-col min-h-screen">
@@ -54,6 +58,22 @@ export const routes = [
       {
         path: "/chatbot",
         element: <Chatbot />,
+      },
+      {
+        path: "/checkout/shipping",
+        element: <Shipping />,
+      },
+      {
+        path: "/checkout/payment",
+        element: <Payment />,
+      },
+      {
+        path: "/checkout/review",
+        element: <OrderReview />,
+      },
+      {
+        path: "/checkout/success",
+        element: <OrderSuccess />,
       },
     ],
   },

@@ -119,7 +119,10 @@ const Cart = () => {
                                     </div>
                                 </div>
 
-                                <button className="w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg hover:shadow-pink-500/30 active:scale-[0.98]">
+                                <button 
+                                    onClick={() => navigate('/checkout/shipping')}
+                                    className="w-full bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-700 transition-all shadow-lg hover:shadow-pink-500/30 active:scale-[0.98]"
+                                >
                                     Proceed to Checkout
                                 </button>
                                 
