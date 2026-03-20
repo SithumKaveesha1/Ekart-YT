@@ -20,6 +20,7 @@ import Shipping from "./pages/Shipping";
 import Payment from "./pages/Payment";
 import OrderReview from "./pages/OrderReview";
 import OrderSuccess from "./pages/OrderSuccess";
+import AddProduct from "./pages/AddProduct";
 
 const Layout = () => (
   <div className="flex flex-col min-h-screen">
@@ -78,6 +79,10 @@ export const routes = [
       {
         path: "/checkout/success",
         element: <OrderSuccess />,
+      },
+      {
+        path: "/admin/add-product",
+        element: <AddProduct />,
       },
     ],
   },

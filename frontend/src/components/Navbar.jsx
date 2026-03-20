@@ -53,6 +53,11 @@ const Navbar = () => {
                                 <Link to={'/login'} className="hover:text-pink-600 transition-colors"><li>Hello, Guest</li></Link>
                             )
                         }
+                        {
+                            user?.role === 'admin' && (
+                                <Link to={'/admin/add-product'} className="hover:text-pink-600 transition-colors font-bold"><li>Add Product</li></Link>
+                            )
+                        }
                     </ul>
                     
                     <div className='flex items-center gap-4 border-l border-pink-200 pl-6'>
