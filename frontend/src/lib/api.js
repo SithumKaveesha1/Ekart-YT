@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8000/api/users';
+const BASE_URL = 'http://localhost:8005/api/users';
 
 export const registerUser = async (userData) => {
     const response = await fetch(`${BASE_URL}/register`, {
@@ -42,15 +42,14 @@ export const getProfile = async (userId) => {
     return data;
 };
 
-export const createProduct = async (productData) => {
+export const createProduct = async (formData) => {
     const accessToken = localStorage.getItem('accessToken');
-    const response = await fetch(`http://localhost:8000/api/products`, {
+    const response = await fetch(`http://localhost:8005/api/products`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(productData),
+        body: formData,
     });
     const data = await response.json();
     if (!response.ok) {
@@ -59,9 +58,26 @@ export const createProduct = async (productData) => {
     return data;
 };
 
+export const updateProductById = async (productId, formData) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await fetch(`http://localhost:8005/api/products/${productId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        },
+        body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || 'Failed to update product');
+    }
+    return data;
+};
+
+
 export const deleteProductById = async (productId) => {
     const accessToken = localStorage.getItem('accessToken');
-    const response = await fetch(`http://localhost:8000/api/products/${productId}`, {
+    const response = await fetch(`http://localhost:8005/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${accessToken}`,

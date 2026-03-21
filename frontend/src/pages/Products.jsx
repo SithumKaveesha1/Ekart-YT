@@ -2,16 +2,22 @@ import React, { useState, useMemo, useEffect } from 'react';
 import FilterSidebar from '../components/FilterSidebar';
 import ProductCard from '../components/ProductCard';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { Plus, SlidersHorizontal, PackageSearch } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 
 const Products = () => {
+  const { user } = useSelector(state => state.user);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [filters, setFilters] = useState({
     search: '',
     category: 'All',
     brand: 'All',
     minPrice: 0,
-    maxPrice: 200000,
+    maxPrice: 2000000,
   });
 
   const [sortOrder, setSortOrder] = useState('relevant');
@@ -20,7 +26,7 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:8000/api/products');
+        const res = await axios.get('http://localhost:8005/api/products');
         if (res.data.success) {
           setProducts(res.data.products);
         }
@@ -39,7 +45,7 @@ const Products = () => {
       category: 'All',
       brand: 'All',
       minPrice: 0,
-      maxPrice: 200000,
+      maxPrice: 2000000,
     });
     setSortOrder('relevant');
   };
@@ -52,9 +58,9 @@ const Products = () => {
   const filteredProducts = useMemo(() => {
     console.log("Filtering with:", filters);
     const filtered = products.filter((product) => {
-      const matchSearch = product.name.toLowerCase().includes(filters.search.toLowerCase());
-      const matchCategory = filters.category === 'All' || product.category === filters.category;
-      const matchBrand = filters.brand === 'All' || product.brand === filters.brand;
+      const matchSearch = product.name?.toLowerCase().includes(filters.search.toLowerCase()) || false;
+      const matchCategory = filters.category === 'All' || product.category?.toLowerCase() === filters.category?.toLowerCase();
+      const matchBrand = filters.brand === 'All' || product.brand?.toLowerCase() === filters.brand?.toLowerCase();
       const matchPrice = Number(product.price) >= Number(filters.minPrice) && Number(product.price) <= Number(filters.maxPrice);
       
       const isMatch = matchSearch && matchCategory && matchBrand && matchPrice;
@@ -79,23 +85,41 @@ const Products = () => {
         {/* Main Content Areas */}
         <main className="flex-1">
           {/* Top Header / Sorting */}
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Showing Results <span className="text-gray-500 text-sm font-normal">({filteredProducts.length} items)</span>
-            </h2>
-            <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-gray-600">Sort by:</label>
-              <select
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-                className="p-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm bg-gray-50 text-gray-700 cursor-pointer"
-              >
-                <option value="relevant">Relevant</option>
-                <option value="lowToHigh">Price: Low to High</option>
-                <option value="highToLow">Price: High to Low</option>
-              </select>
+          <div className="bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-xl shadow-gray-200/40 border border-white mb-8 flex flex-col lg:flex-row justify-between items-center gap-6 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+              <h1 className="text-5xl font-black text-gray-900 tracking-tight leading-none flex items-baseline gap-2 border-b-4 border-pink-500 pb-2">
+    Product <span className="text-pink-600 drop-shadow-[0_10px_10px_rgba(219,39,119,0.2)]">Catalog</span>
+</h1>
+              <span className="text-pink-600 px-3 py-1 bg-pink-50 rounded-full text-sm font-bold border border-pink-100">{filteredProducts.length} Items</span>
+              {/* Add Product Button for Admins */}
+              {user?.role === 'admin' && (
+                <Link 
+                  to="/admin/add-product"
+                  className="flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-2xl hover:bg-pink-600 transition-all shadow-lg active:scale-95 group font-bold text-sm"
+                >
+                  <Plus size={18} className="group-hover:rotate-90 transition-transform" />
+                  Add New Product
+                </Link>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+              <div className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-2xl border border-gray-100">
+                <SlidersHorizontal size={14} className="text-gray-400" />
+                <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Sort by</label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 cursor-pointer outline-none min-w-[120px]"
+                >
+                  <option value="relevant">Relevant</option>
+                  <option value="lowToHigh">Price: Low to High</option>
+                  <option value="highToLow">Price: High to Low</option>
+                </select>
+              </div>
             </div>
           </div>
+
 
           {/* Product Grid */}
           {loading ? (

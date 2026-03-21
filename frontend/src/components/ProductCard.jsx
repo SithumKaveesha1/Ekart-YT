@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { ShoppingCart, Trash2 } from 'lucide-react';
+import { ShoppingCart, Trash2, Pencil } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
 import { Link } from 'react-router-dom';
@@ -29,7 +29,15 @@ const ProductCard = ({ product, onDelete }) => {
       toast.success(`${product.name} removed!`);
       if (onDelete) onDelete(product._id);
     } catch (error) {
-      toast.error(error.message || 'Failed to delete product');
+      console.error("Delete Error:", error);
+      
+      // If product is already gone from DB, treat it as a success for the UI
+      if (error.message?.includes("not found")) {
+        toast.info("Product was already removed.");
+        if (onDelete) onDelete(product._id);
+      } else {
+        toast.error(error.message || 'Failed to delete product');
+      }
     } finally {
       setDeleting(false);
     }
@@ -38,17 +46,27 @@ const ProductCard = ({ product, onDelete }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col group h-full relative">
       
-      {/* Admin Delete Button - only visible to admin */}
+      {/* Admin Actions - only visible to admin */}
       {isAdmin && (
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          title="Delete product"
-          className="absolute top-3 right-3 z-10 w-8 h-8 bg-red-500 border border-red-600 rounded-lg flex items-center justify-center text-white hover:bg-red-700 transition-all shadow-sm disabled:opacity-50 opacity-0 group-hover:opacity-100"
-        >
-          <Trash2 size={14} />
-        </button>
+        <div className="absolute top-3 right-3 z-10 flex gap-2">
+          <Link
+            to={`/admin/edit-product/${product._id}`}
+            title="Edit product"
+            className="w-9 h-9 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-gray-600 hover:text-pink-600 hover:border-pink-100 transition-all shadow-md group/edit animate-in fade-in zoom-in duration-300"
+          >
+            <Pencil size={14} className="group-hover/edit:rotate-12 transition-transform" />
+          </Link>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            title="Delete product"
+            className="w-9 h-9 bg-red-600 border border-red-700 rounded-xl flex items-center justify-center text-white hover:bg-red-800 transition-all shadow-md disabled:opacity-50 group/del animate-in fade-in zoom-in duration-500"
+          >
+            <Trash2 size={14} className="group-hover/del:scale-110 transition-transform" />
+          </button>
+        </div>
       )}
+
 
       {/* Image Container */}
       <Link to={`/product/${product._id}`} className="block">

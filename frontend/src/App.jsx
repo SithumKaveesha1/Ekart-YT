@@ -21,6 +21,8 @@ import Payment from "./pages/Payment";
 import OrderReview from "./pages/OrderReview";
 import OrderSuccess from "./pages/OrderSuccess";
 import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
+
 
 const Layout = () => (
   <div className="flex flex-col min-h-screen">
@@ -83,6 +85,10 @@ export const routes = [
       {
         path: "/admin/add-product",
         element: <AddProduct />,
+      },
+      {
+        path: "/admin/edit-product/:id",
+        element: <EditProduct />,
       },
     ],
   },

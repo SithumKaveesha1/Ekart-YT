@@ -57,9 +57,10 @@ export const isAdmin = async (req, res, next) => {
     if(req.user && req.user.role === "admin"){
         next();
     } else {
-        res.status(403).json({
+        console.warn(`Admin access denied for user: ${req.user?.email} (Role: ${req.user?.role})`);
+        return res.status(403).json({
             success: false,
             message: "Access denied : admin only"
-        })
+        });
     }
 }

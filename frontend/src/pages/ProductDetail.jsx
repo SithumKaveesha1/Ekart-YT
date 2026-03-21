@@ -5,22 +5,29 @@ import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/button';
-import { ChevronLeft, ShoppingCart, Star, ShieldCheck, Truck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Star, ShieldCheck, Truck, Play, Info } from 'lucide-react';
 
 const ProductDetail = () => {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [quantity, setQuantity] = useState(1);
+    const [activeImage, setActiveImage] = useState(null);
     const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get(`http://localhost:8000/api/products/${id}`);
+                const res = await axios.get(`http://localhost:8005/api/products/${id}`);
                 if (res.data.success) {
-                    setProduct(res.data.product);
+                    const p = res.data.product;
+                    setProduct(p);
+                    // Set active image from images array or single image field
+                    if (p.images && p.images.length > 0) {
+                        setActiveImage(p.images[0].url);
+                    } else {
+                        setActiveImage(p.image);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching product:", error);
@@ -34,10 +41,6 @@ const ProductDetail = () => {
 
     const handleAddToCart = () => {
         if (!product) return;
-        
-        // Dispatch the same product object but override quantity if needed
-        // The reducer handles adding 1 by default, but we can pass quantity if we update the slice
-        // For now, let's just stick to the existing slice behavior: add 1
         dispatch(addToCart(product));
         toast.success(`${product.name} added to cart!`);
     };
@@ -67,27 +70,77 @@ const ProductDetail = () => {
         );
     }
 
+    const galleryItems = product.images && product.images.length > 0 
+        ? product.images 
+        : [{ url: product.image, _id: 'default' }];
+
     return (
-        <div className="min-h-screen bg-white pt-24 pb-16">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Breadcrumb / Back Navigation */}
-                <Link to="/products" className="flex items-center gap-2 text-gray-500 hover:text-pink-600 transition-colors mb-8 group">
-                    <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                    <span>Back to Catalog</span>
+        <div className="min-h-screen bg-gray-50/50 pt-24 pb-16 px-4">
+            <div className="max-w-7xl mx-auto">
+                <Link to="/products" className="inline-flex items-center gap-2 text-gray-500 hover:text-pink-600 font-bold mb-8 transition-colors group">
+                    <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center group-hover:bg-pink-50">
+                        <ChevronLeft size={20} />
+                    </div>
+                    Back to Store
                 </Link>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-                    {/* Left: Image Section */}
-                    <div className="relative aspect-square bg-[#f8f9fa] rounded-[2.5rem] overflow-hidden group border border-gray-100 shadow-sm">
-                        <img 
-                            src={product.image} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 bg-white rounded-[3rem] p-8 lg:p-12 shadow-2xl shadow-gray-200/50 border border-white">
+                    {/* Left: Interactive Image Gallery */}
+                    <div className="lg:col-span-6 space-y-6">
+                        {/* Main Viewer */}
+                        <div className="relative aspect-[4/5] sm:aspect-square bg-white rounded-[2.5rem] overflow-hidden group border border-gray-100 shadow-sm flex items-center justify-center p-8">
+                            <img 
+                                src={activeImage} 
+                                alt={product.name} 
+                                className="max-h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                            />
+                            {/* Play Icon Overlay */}
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border-2 border-white/50 shadow-2xl">
+                                    <Play className="text-white fill-white ml-1" size={40} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Thumbnail Carousel with Arrows */}
+                        <div className="relative group/carousel px-2">
+                             <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide py-2 scroll-smooth" id="gallery-carousel">
+                                {galleryItems.map((item, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setActiveImage(item.url)}
+                                        className={`relative w-24 h-24 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all duration-300 bg-white p-2 ${
+                                            activeImage === item.url 
+                                                ? 'border-[#f97316] shadow-lg shadow-orange-100 scale-105' 
+                                                : 'border-transparent hover:border-gray-200'
+                                        }`}
+                                    >
+                                        <img 
+                                            src={item.url} 
+                                            className="w-full h-full object-contain"
+                                        />
+                                    </button>
+                                ))}
+                             </div>
+                             
+                             {/* Navigation Arrows */}
+                             <button 
+                                onClick={() => document.getElementById('gallery-carousel').scrollBy({ left: -200, behavior: 'smooth' })}
+                                className="absolute left-[-15px] top-[40%] -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#f97316] opacity-0 group-hover/carousel:opacity-100 transition-all z-20"
+                             >
+                                <ChevronLeft size={24} />
+                             </button>
+                             <button 
+                                onClick={() => document.getElementById('gallery-carousel').scrollBy({ left: 200, behavior: 'smooth' })}
+                                className="absolute right-[-15px] top-[40%] -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#f97316] opacity-0 group-hover/carousel:opacity-100 transition-all z-20"
+                             >
+                                <ChevronRight size={24} />
+                             </button>
+                        </div>
                     </div>
 
                     {/* Right: Product Info Section */}
-                    <div className="flex flex-col h-full">
+                    <div className="lg:col-span-6 flex flex-col h-full">
                         <div className="mb-2">
                              <span className="bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                                 {product.brand}

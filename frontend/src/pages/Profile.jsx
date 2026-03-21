@@ -23,7 +23,7 @@ const Profile = () => {
         const accessToken = localStorage.getItem("accessToken");
         
         try {
-            const res = await axios.put(`http://localhost:8000/api/users/update-profile`, {
+            const res = await axios.put(`http://localhost:8005/api/users/update-profile`, {
                 ...formData,
                 profilePic
             }, {

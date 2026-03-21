@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
-import { Package, DollarSign, Image as ImageIcon, Tag, Briefcase, Plus, ArrowLeft, Info, Loader2, Upload, Rocket } from 'lucide-react';
+import { Package, DollarSign, Image as ImageIcon, Tag, Briefcase, Save, ArrowLeft, Info, Loader2, Upload, Plus } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { createProduct } from '../lib/api';
+import axios from 'axios';
+import { updateProductById } from '../lib/api';
 
-const AddProduct = () => {
+const EditProduct = () => {
+    const { id } = useParams();
     const { user } = useSelector(state => state.user);
     const [formData, setFormData] = useState({
         name: '',
@@ -20,7 +22,41 @@ const AddProduct = () => {
     const [imageFiles, setImageFiles] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
     const navigate = useNavigate();
+
+    // Fetch product details
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await axios.get(`http://localhost:8005/api/products/${id}`);
+                if (res.data.success) {
+                    const p = res.data.product;
+                    setFormData({
+                        name: p.name,
+                        description: p.description || '',
+                        price: p.price,
+                        category: p.category,
+                        brand: p.brand
+                    });
+                    
+                    // Set existing images as previews
+                    if (p.images && p.images.length > 0) {
+                        setPreviewUrls(p.images.map(img => img.url));
+                    } else if (p.image) {
+                        setPreviewUrls([p.image]);
+                    }
+                }
+            } catch (error) {
+                toast.error("Failed to fetch product details");
+                navigate('/products');
+            } finally {
+                setFetching(false);
+            }
+        };
+
+        if (id) fetchProduct();
+    }, [id, navigate]);
 
     // Redirect non-admin users
     useEffect(() => {
@@ -37,7 +73,7 @@ const AddProduct = () => {
 
     const handleFileChange = (e) => {
         const chosenFiles = Array.from(e.target.files);
-        if (imageFiles.length + chosenFiles.length > 5) {
+        if (imageFiles.length + chosenFiles.length + previewUrls.length - imageFiles.length > 5) {
             toast.warning("Maximum 5 images allowed per product");
             return;
         }
@@ -50,20 +86,17 @@ const AddProduct = () => {
     };
 
     const removeImage = (index) => {
-        const updatedFiles = imageFiles.filter((_, i) => i !== index);
-        const updatedPreviews = previewUrls.filter((_, i) => i !== index);
-        setImageFiles(updatedFiles);
-        setPreviewUrls(updatedPreviews);
+        // If it's a new file, remove from imageFiles too
+        // This is complex because previewUrls contains both old (strings) and new (blob urls)
+        // For simplicity, we'll reset image selection if they want to edit existing ones
+        // OR just allow them to clear and re-upload.
+        // Let's implement a simple version: clear all and re-upload if they want to change.
+        setImageFiles([]);
+        setPreviewUrls([]);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (imageFiles.length === 0) {
-            toast.warning("Please upload at least one product image!");
-            return;
-        }
-
         setLoading(true);
 
         const data = new FormData();
@@ -73,31 +106,42 @@ const AddProduct = () => {
         data.append('category', formData.category);
         data.append('brand', formData.brand);
         
-        // Append all images to the 'images' field
-        imageFiles.forEach(file => {
-            data.append('images', file);
-        });
+        // Append all new images if selected
+        if (imageFiles.length > 0) {
+            imageFiles.forEach(file => {
+                data.append('images', file);
+            });
+        }
 
-        console.log('[DEBUG-FRONTEND] Submitting to: http://localhost:8005/api/products');
+        console.log('[DEBUG-FRONTEND-EDIT] Submitting to:', `http://localhost:8005/api/products/${id}`);
         for (let [key, value] of data.entries()) {
             console.log(`[DATA] ${key}:`, value);
         }
 
         try {
-            const res = await createProduct(data);
+            const res = await updateProductById(id, data);
 
             if (res.success) {
-                toast.success("Product launched successfully!");
+                toast.success("Product updated successfully!");
                 navigate('/products');
             }
         } catch (error) {
             console.error(error);
-            toast.error(error.message || "Failed to add product");
+            toast.error(error.message || "Failed to update product");
         } finally {
             setLoading(false);
         }
     };
 
+
+    if (fetching) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gray-50/50 pt-20">
+                <Loader2 className="w-12 h-12 text-pink-600 animate-spin" />
+                <p className="text-gray-500 font-medium animate-pulse">Loading product details...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="pt-28 pb-20 min-h-screen bg-gray-50/50">
@@ -113,11 +157,11 @@ const AddProduct = () => {
                             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                             Back to Inventory
                         </button>
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Launch <span className="text-pink-600">Product</span></h1>
-                        <p className="text-gray-500 text-sm font-medium">Add a new item to your global digital storefront</p>
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Edit <span className="text-pink-600">Product</span></h1>
+                        <p className="text-gray-500 text-sm font-medium">Update the details and assets for this item</p>
                     </div>
-                    <div className="hidden sm:flex w-16 h-16 bg-pink-600 rounded-3xl items-center justify-center text-white shadow-xl shadow-pink-200/50">
-                        <Rocket size={32} strokeWidth={2.5} />
+                    <div className="hidden sm:flex w-16 h-16 bg-white border-2 border-pink-100 rounded-3xl items-center justify-center text-pink-600 shadow-xl shadow-pink-50/50">
+                        <Package size={32} strokeWidth={2.5} />
                     </div>
                 </div>
 
@@ -227,12 +271,12 @@ const AddProduct = () => {
                                         {loading ? (
                                             <span className="flex items-center gap-3">
                                                 <Loader2 className="animate-spin" size={24} />
-                                                Launching...
+                                                Processing Changes...
                                             </span>
                                         ) : (
                                             <span className="flex items-center gap-3 font-black">
-                                                <Plus size={24} />
-                                                Add Product
+                                                <Save size={24} />
+                                                Save Changes
                                             </span>
                                         )}
                                     </Button>
@@ -249,12 +293,12 @@ const AddProduct = () => {
                         </div>
                     </div>
 
-                    {/* Image Upload Sidebar */}
+                    {/* Image Preview Sidebar */}
                     <div className="lg:col-span-4 space-y-8">
                         <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-xl shadow-gray-200/30">
                             <Label className="text-sm font-black text-gray-700 uppercase tracking-widest block mb-6 px-1 flex items-center gap-2">
                                 <Upload size={16} className="text-pink-600" />
-                                Product Images ({previewUrls.length}/5)
+                                Product Gallery ({previewUrls.length}/5)
                             </Label>
                             
                             <div className="space-y-4">
@@ -269,7 +313,7 @@ const AddProduct = () => {
                                     ) : (
                                         <div className="flex flex-col items-center gap-4 text-gray-300 group-hover:text-pink-300 transition-colors">
                                             <ImageIcon size={64} strokeWidth={1} />
-                                            <p className="text-sm font-bold">Pick primary image</p>
+                                            <p className="text-sm font-bold">No images selected</p>
                                         </div>
                                     )}
                                     <input 
@@ -284,18 +328,11 @@ const AddProduct = () => {
                                     <label htmlFor="file-upload" className="absolute inset-0 cursor-pointer z-10" />
                                 </div>
 
-                                {/* Thumbnails & Add Button */}
+                                {/* Thumbnails & Reset */}
                                 <div className="grid grid-cols-4 gap-3">
                                     {previewUrls.map((url, idx) => (
                                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 group/thumb">
                                             <img src={url} className="w-full h-full object-cover" />
-                                            <button 
-                                                type="button"
-                                                onClick={() => removeImage(idx)}
-                                                className="absolute inset-0 bg-red-600/80 flex items-center justify-center text-white opacity-0 group-hover/thumb:opacity-100 transition-opacity"
-                                            >
-                                                <Plus className="rotate-45" size={20} />
-                                            </button>
                                         </div>
                                     ))}
                                     {previewUrls.length < 5 && (
@@ -304,6 +341,15 @@ const AddProduct = () => {
                                         </label>
                                     )}
                                 </div>
+                                {previewUrls.length > 0 && (
+                                    <button 
+                                        type="button"
+                                        onClick={removeImage}
+                                        className="w-full py-2 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-xl transition-all border border-transparent hover:border-red-100"
+                                    >
+                                        Clear Gallery to Re-upload
+                                    </button>
+                                )}
                             </div>
                             
                             <div className="bg-pink-50/50 rounded-2xl p-4 border border-pink-100/30 mt-6">
@@ -312,28 +358,28 @@ const AddProduct = () => {
                                         <Info size={14} />
                                     </div>
                                     <p className="text-[11px] font-medium text-pink-800 leading-relaxed">
-                                        Upload up to 5 images. The first image will be your primary storefront visual.
+                                        Changing images will replace the entire gallery. You can upload up to 5 new shots.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Inventory Card */}
+                        {/* Status Widget */}
                         <div className="bg-gray-900 rounded-[32px] p-8 text-white shadow-2xl shadow-gray-400/20 flex flex-col items-center text-center overflow-hidden relative">
                             <div className="absolute -right-8 -top-8 w-32 h-32 bg-pink-600/10 rounded-full blur-3xl" />
                             <div className="w-12 h-12 bg-pink-600 rounded-2xl flex items-center justify-center mb-4 relative z-10">
-                                <Package size={20} className="text-white" />
+                                <Save size={20} className="text-white" />
                             </div>
-                            <h4 className="font-black text-lg mb-1 relative z-10">Asset Manager</h4>
-                            <p className="text-gray-400 text-sm font-medium px-4 relative z-10">Your store will be updated instantly across all regions.</p>
+                            <h4 className="font-black text-lg mb-1 relative z-10">Inventory Sync</h4>
+                            <p className="text-gray-400 text-xs font-medium px-4 relative z-10">All changes are instantly distributed across all storefront nodes.</p>
                             <div className="mt-6 pt-6 border-t border-white/5 w-full flex justify-around relative z-10">
                                 <div className="text-center">
-                                    <p className="text-pink-500 font-bold text-xl leading-none">AUTO</p>
-                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Scaling</p>
+                                    <p className="text-pink-500 font-black text-xl leading-none mb-1">LIVE</p>
+                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Status</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-white font-bold text-xl leading-none">SSL</p>
-                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Secure</p>
+                                    <p className="text-white font-black text-xl leading-none mb-1">99.9%</p>
+                                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Uptime</p>
                                 </div>
                             </div>
                         </div>
@@ -344,4 +390,4 @@ const AddProduct = () => {
     );
 };
 
-export default AddProduct;
+export default EditProduct;
