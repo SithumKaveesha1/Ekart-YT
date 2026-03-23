@@ -75,17 +75,14 @@ export const updateProductById = async (productId, formData) => {
 };
 
 
+import axios from 'axios';
+
 export const deleteProductById = async (productId) => {
     const accessToken = localStorage.getItem('accessToken');
-    const response = await fetch(`http://localhost:8005/api/products/${productId}`, {
-        method: 'DELETE',
+    const response = await axios.delete(`http://localhost:8005/api/products/${productId}`, {
         headers: {
             'Authorization': `Bearer ${accessToken}`,
         },
     });
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete product');
-    }
-    return data;
+    return response.data;
 };

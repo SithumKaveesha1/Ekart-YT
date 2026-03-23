@@ -143,13 +143,14 @@ export const deleteProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    // Delete all images from local storage
+    // Delete all images from local storage safely
     if (product.images && product.images.length > 0) {
         for (const img of product.images) {
-            await cloudinary.uploader.destroy(img.publicId);
+            if (img.publicId) {
+                await cloudinary.uploader.destroy(img.publicId);
+            }
         }
     } else if (product.imagePublicId) {
-        // Fallback for old records with single image
         await cloudinary.uploader.destroy(product.imagePublicId);
     }
 

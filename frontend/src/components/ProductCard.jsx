@@ -11,35 +11,39 @@ const ProductCard = ({ product, onDelete }) => {
   const { user } = useSelector(state => state.user);
   const isAdmin = user?.role === 'admin';
   const [deleting, setDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handleAddToCart = () => {
     dispatch(addToCart(product));
     toast.success(`${product.name} added to cart!`);
   };
 
-  const handleDelete = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`)) return;
-
+  const handleDelete = async () => {
     setDeleting(true);
+    console.log(`[DEBUG] Attempting to delete product with ID: ${product._id}`);
+    
     try {
-      await deleteProductById(product._id);
-      toast.success(`${product.name} removed!`);
-      if (onDelete) onDelete(product._id);
-    } catch (error) {
-      console.error("Delete Error:", error);
+      const result = await deleteProductById(product._id);
+      console.log(`[DEBUG] Delete Success:`, result);
       
-      // If product is already gone from DB, treat it as a success for the UI
-      if (error.message?.includes("not found")) {
+      toast.success(`${product.name} removed successfully!`);
+      if (onDelete) {
+          onDelete(product._id);
+      }
+    } catch (error) {
+      console.error("[DEBUG] Delete Error Details:", error);
+      
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete product';
+      
+      if (errorMessage?.toLowerCase().includes("not found")) {
         toast.info("Product was already removed.");
         if (onDelete) onDelete(product._id);
       } else {
-        toast.error(error.message || 'Failed to delete product');
+        toast.error(`Delete failed: ${errorMessage}`);
       }
     } finally {
       setDeleting(false);
+      setShowConfirm(false);
     }
   };
 
@@ -57,13 +61,41 @@ const ProductCard = ({ product, onDelete }) => {
             <Pencil size={14} className="group-hover/edit:rotate-12 transition-transform" />
           </Link>
           <button
-            onClick={handleDelete}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConfirm(true); }}
             disabled={deleting}
             title="Delete product"
             className="w-9 h-9 bg-red-600 border border-red-700 rounded-xl flex items-center justify-center text-white hover:bg-red-800 transition-all shadow-md disabled:opacity-50 group/del animate-in fade-in zoom-in duration-500"
           >
             <Trash2 size={14} className="group-hover/del:scale-110 transition-transform" />
           </button>
+        </div>
+      )}
+
+
+      {/* Custom Confirmation Dialog Overlay */}
+      {showConfirm && (
+        <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-300">
+            <div className="w-14 h-14 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <Trash2 size={24} />
+            </div>
+            <h4 className="font-bold text-gray-900 mb-1 leading-tight">Remove Product?</h4>
+            <p className="text-xs text-gray-500 mb-6">This action cannot be undone.</p>
+            <div className="flex flex-col w-full gap-2">
+                <button 
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(); }}
+                  disabled={deleting}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {deleting ? 'Removing...' : 'Yes, Delete'}
+                </button>
+                <button 
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowConfirm(false); }}
+                  disabled={deleting}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95"
+                >
+                  Cancel
+                </button>
+            </div>
         </div>
       )}
 
